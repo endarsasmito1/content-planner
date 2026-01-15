@@ -1,0 +1,130 @@
+@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap');
+
+:root {
+  /* Brand Colors - Kreatop Theme */
+  --color-primary: #4C35DE;
+  /* Deep Purple/Indigo */
+  --color-primary-light: #6F5CF6;
+  --color-primary-bg: #EFECFD;
+
+  --color-secondary: #ff6b6b;
+
+  /* Neutrals */
+  --text-main: #202124;
+  /* Google's near-black */
+  --text-secondary: #5F6368;
+  /* Google's grey */
+  --text-light: #BDC1C6;
+
+  --bg-body: #F8F9FA;
+  /* Google's off-white background */
+  --bg-card: #FFFFFF;
+  --bg-sidebar: #FFFFFF;
+
+  /* Shapes */
+  --border-radius-sm: 8px;
+  --border-radius-md: 16px;
+  --border-radius-lg: 24px;
+
+  /* Shadows - Material-like but softer */
+  --shadow-sm: 0 1px 2px 0 rgba(60, 64, 67, 0.3), 0 1px 3px 1px rgba(60, 64, 67, 0.15);
+  --shadow-card: 0 1px 2px 0 rgba(60, 64, 67, 0.3), 0 2px 6px 2px rgba(60, 64, 67, 0.15);
+  --shadow-hover: 0 4px 8px 3px rgba(60, 64, 67, 0.15), 0 1px 3px rgba(60, 64, 67, 0.3);
+}
+
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  font-family: 'Poppins', sans-serif;
+  background-color: var(--bg-body);
+  color: var(--text-main);
+  line-height: 1.5;
+  -webkit-font-smoothing: antialiased;
+}
+
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
+  color: var(--text-main);
+  font-weight: 500;
+  /* Google standards usually favour 500 for headers over 700 */
+  letter-spacing: normal;
+}
+
+button {
+  cursor: pointer;
+  border: none;
+  font-family: inherit;
+  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+  /* Material Ease */
+}
+
+input,
+textarea,
+select {
+  font-family: inherit;
+  border: 1px solid #DADCE0;
+  outline: none;
+  transition: all 0.2s ease;
+}
+
+/* UX: Better Focus States for Accessibility */
+input:focus,
+textarea:focus,
+select:focus,
+button:focus-visible {
+  border-color: var(--color-primary);
+  box-shadow: 0 0 0 2px rgba(76, 53, 222, 0.2);
+}
+
+/* Utilities */
+.card {
+  background: var(--bg-card);
+  border-radius: var(--border-radius-lg);
+  padding: 24px;
+  box-shadow: var(--shadow-card);
+  border: none;
+  transition: box-shadow 0.2s ease;
+}
+
+/* UX: Hover effects to indicate interactivity */
+.card:hover {
+  box-shadow: var(--shadow-hover);
+}
+
+.btn-primary {
+  background: var(--color-primary);
+  color: white;
+  padding: 10px 24px;
+  border-radius: 100px;
+  /* Google-style pill buttons */
+  font-weight: 500;
+  font-size: 14px;
+  letter-spacing: 0.25px;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  height: 40px;
+}
+
+.btn-primary:hover {
+  background-color: #3d2ab2;
+  /* Custom Darker shade */
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+}
+
+.btn-primary:active {
+  transform: scale(0.98);
+}
+
+.text-primary {
+  color: var(--color-primary);
+}
