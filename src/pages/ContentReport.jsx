@@ -335,8 +335,9 @@ const ContentReport = () => {
                     gap: 6px;
                     padding: 4px 10px;
                     border-radius: 20px;
-                    font-size: 12px;
+                    font-size: 13px; 
                     font-weight: 600;
+                    white-space: nowrap;
                 }
                 
                 .metric-display {

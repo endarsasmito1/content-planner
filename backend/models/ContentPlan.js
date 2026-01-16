@@ -15,6 +15,10 @@ const ContentPlan = sequelize.define('ContentPlan', {
         type: DataTypes.TEXT,
         allowNull: true
     },
+    script: {
+        type: DataTypes.TEXT,
+        allowNull: true
+    },
     postingDate: {
         type: DataTypes.DATE,
         allowNull: false

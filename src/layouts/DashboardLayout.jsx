@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { Outlet, Link, useNavigate } from 'react-router-dom';
+import { Outlet, Link, useNavigate, useLocation } from 'react-router-dom';
 import Sidebar from '../components/Sidebar';
 import { Search, Bell, Menu, LogOut, Settings, User } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
@@ -12,7 +12,12 @@ const DashboardLayout = () => {
 
     const { user, logout } = useAuth();
     const navigate = useNavigate();
+    const location = useLocation();
     const dropdownRef = useRef(null);
+
+    const isCalendarPage = location.pathname === '/calendar';
+
+    // ... (rest of the hooks)
 
     // Handle Resize
     useEffect(() => {
@@ -80,52 +85,54 @@ const DashboardLayout = () => {
             />
 
             <main className={`main-content ${isSidebarCollapsed ? 'collapsed' : ''} ${isMobile ? 'mobile' : ''}`}>
-                <header className="top-header card">
-                    <div className="header-left">
-                        {isMobile && (
-                            <button className="btn-menu" onClick={toggleSidebar}>
-                                <Menu size={24} color="#202124" />
-                            </button>
-                        )}
-
-                    </div>
-
-                    <div className="header-right">
-                        <span className="header-date">{todayDate}</span>
-
-                        <button className="btn-icon">
-                            <Bell size={20} color="#202124" />
-                            <span className="notif-dot"></span>
-                        </button>
-
-                        <div className="user-profile-container" ref={dropdownRef}>
-                            <div
-                                className="user-profile"
-                                onClick={() => setProfileDropdownOpen(!isProfileDropdownOpen)}
-                            >
-                                <div className="user-info">
-                                    <span className="user-name">{user?.username || 'User'}</span>
-                                    <span className="user-role">{user?.Team?.name || 'No Team'}</span>
-                                </div>
-                                <img src={user?.avatarUrl || "https://ui-avatars.com/api/?name=" + (user?.username || 'User') + "&background=random"} alt="Profile" className="user-avatar" />
-                            </div>
-
-                            {/* Dropdown Menu */}
-                            {isProfileDropdownOpen && (
-                                <div className="profile-dropdown">
-                                    <Link to="/settings" className="dropdown-item" onClick={() => setProfileDropdownOpen(false)}>
-                                        <Settings size={18} />
-                                        Settings
-                                    </Link>
-                                    <button className="dropdown-item danger" onClick={handleLogoutClick}>
-                                        <LogOut size={18} />
-                                        Logout
-                                    </button>
-                                </div>
+                {!isCalendarPage && (
+                    <header className="top-header card">
+                        <div className="header-left">
+                            {isMobile && (
+                                <button className="btn-menu" onClick={toggleSidebar}>
+                                    <Menu size={24} color="#202124" />
+                                </button>
                             )}
+
                         </div>
-                    </div>
-                </header>
+
+                        <div className="header-right">
+                            <span className="header-date">{todayDate}</span>
+
+                            <button className="btn-icon">
+                                <Bell size={20} color="#202124" />
+                                <span className="notif-dot"></span>
+                            </button>
+
+                            <div className="user-profile-container" ref={dropdownRef}>
+                                <div
+                                    className="user-profile"
+                                    onClick={() => setProfileDropdownOpen(!isProfileDropdownOpen)}
+                                >
+                                    <div className="user-info">
+                                        <span className="user-name">{user?.username || 'User'}</span>
+                                        <span className="user-role">{user?.Team?.name || 'No Team'}</span>
+                                    </div>
+                                    <img src={user?.avatarUrl || "https://ui-avatars.com/api/?name=" + (user?.username || 'User') + "&background=random"} alt="Profile" className="user-avatar" />
+                                </div>
+
+                                {/* Dropdown Menu */}
+                                {isProfileDropdownOpen && (
+                                    <div className="profile-dropdown">
+                                        <Link to="/settings" className="dropdown-item" onClick={() => setProfileDropdownOpen(false)}>
+                                            <Settings size={18} />
+                                            Settings
+                                        </Link>
+                                        <button className="dropdown-item danger" onClick={handleLogoutClick}>
+                                            <LogOut size={18} />
+                                            Logout
+                                        </button>
+                                    </div>
+                                )}
+                            </div>
+                        </div>
+                    </header>
+                )}
 
                 <div className="content-wrapper">
                     <Outlet />
@@ -149,10 +156,10 @@ const DashboardLayout = () => {
             <style>{`
                 .layout-container {
                     display: flex;
-                    min-height: 100vh;
+                    height: 100vh; /* Locked height */
                     background: var(--bg-body);
                     position: relative;
-                    overflow-x: hidden;
+                    overflow: hidden; /* No window scroll */
                 }
                 
                 .main-content {
@@ -161,6 +168,9 @@ const DashboardLayout = () => {
                     padding: 32px;
                     display: flex;
                     flex-direction: column;
+                    height: 100%; /* Full height of parent */
+                    overflow: hidden; /* Wrapper handles scroll */
+                    box-sizing: border-box;
                     gap: 32px;
                     transition: margin-left 0.3s ease;
                     width: 100%;
@@ -450,10 +460,20 @@ const DashboardLayout = () => {
                     }
                     
                     .header-right {
-                        gap: 16px;
-                    }
+                    display: flex;
+                    align-items: center;
+                    gap: 16px;
                 }
-            `}</style>
+            }
+
+            .content-wrapper {
+                flex: 1;
+                display: flex;
+                flex-direction: column;
+                min-height: 0;
+                overflow-y: auto; /* Scroll here */
+            }
+        `}</style>
         </div>
     );
 };

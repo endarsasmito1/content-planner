@@ -3,6 +3,7 @@ import {
     Plus, Edit2, Trash2, Check, X, Loader, Link as LinkIcon,
     Instagram, Facebook, Youtube, Twitter
 } from 'lucide-react';
+import TikTokIcon from '../components/TikTokIcon';
 import { accountsAPI } from '../services/api';
 
 const InputAkun = () => {
@@ -24,7 +25,7 @@ const InputAkun = () => {
     const platforms = [
         { name: 'Instagram', color: '#E1306C', bg: '#FDEDF3', icon: <Instagram size={16} /> },
         { name: 'Facebook', color: '#1877F2', bg: '#E7F1FF', icon: <Facebook size={16} /> },
-        { name: 'TikTok', color: '#000000', bg: '#F0F0F0', icon: <span style={{ fontWeight: 800, fontSize: 10 }}>Tk</span> },
+        { name: 'TikTok', color: '#000000', bg: '#F0F0F0', icon: <TikTokIcon size={16} /> },
         { name: 'Youtube', color: '#FF0000', bg: '#FFEEEE', icon: <Youtube size={16} /> },
         { name: 'Twitter (X)', color: '#000000', bg: '#F0F0F0', icon: <Twitter size={16} /> },
         { name: 'Threads', color: '#000000', bg: '#F0F0F0', icon: <span style={{ fontWeight: 800, fontSize: 10 }}>@</span> }
@@ -269,7 +270,7 @@ const InputAkun = () => {
                     padding: 6px 12px; border-radius: 20px;
                     font-size: 12px; font-weight: 600;
                 }
-                .username-text { font-weight: 500; color: var(--text-main); }
+                .username-text { font-weight: 600; color: var(--text-main); font-size: 14px; }
                 .link-btn {
                     display: inline-flex; align-items: center; gap: 6px;
                     color: var(--color-primary); font-size: 12px; font-weight: 500; text-decoration: none;
@@ -290,7 +291,7 @@ const InputAkun = () => {
 
                 /* Modal & Form */
                 .modal-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.5); display: flex; align-items: center; justify-content: center; z-index: 1000; }
-                .modal { width: 100%; max-width: 500px; padding: 0; overflow: hidden; }
+                .modal { width: 100%; max-width: 550px; padding: 0; overflow: hidden; }
                 .modal-header { display: flex; justify-content: space-between; align-items: center; padding: 20px 24px; border-bottom: 1px solid #F1F2F6; }
                 .btn-close { background: transparent; border: none; cursor: pointer; }
                 .modal-body { padding: 24px; display: flex; flex-direction: column; gap: 20px; }

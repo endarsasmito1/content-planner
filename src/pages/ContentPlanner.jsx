@@ -2,7 +2,7 @@ import React, { useState, useEffect, useRef } from 'react';
 import {
     Plus, Edit2, Trash2, Check, X, Loader, Link as LinkIcon,
     Calendar as CalendarIcon, Instagram, Facebook, Youtube, Twitter, ChevronDown,
-    ChevronLeft, ChevronRight, Filter
+    ChevronLeft, ChevronRight, Filter, AlertCircle
 } from 'lucide-react';
 import TikTokIcon from '../components/TikTokIcon';
 import { plansAPI, accountsAPI } from '../services/api';
@@ -276,7 +276,7 @@ const ContentPlanner = () => {
 
     const formatDate = (dateString) => {
         return new Date(dateString).toLocaleDateString('id-ID', {
-            weekday: 'short', year: 'numeric', month: 'short', day: 'numeric'
+            day: 'numeric', month: 'short', year: 'numeric'
         });
     };
 
@@ -288,6 +288,7 @@ const ContentPlanner = () => {
         if (name.includes('youtube')) return <Youtube size={14} />;
         if (name.includes('twitter')) return <Twitter size={14} />;
         if (name.includes('tiktok')) return <TikTokIcon size={14} />;
+        if (name === 'unknown' || name === 'none') return <AlertCircle size={14} />;
         return <span style={{ fontSize: 10, fontWeight: 800 }}>{platformName?.[0]}</span>;
     };
 
@@ -297,12 +298,12 @@ const ContentPlanner = () => {
         if (p.includes('facebook')) return { color: '#1877F2', bg: '#E7F1FF', border: '#C8DFFF' };
         if (p.includes('youtube')) return { color: '#FF0000', bg: '#FFEEEE', border: '#FFCACA' };
         if (p.includes('tiktok')) return { color: '#000000', bg: '#F2F2F2', border: '#D9D9D9' };
-        return { color: '#4B5563', bg: '#F5F6FA', border: '#E5E7EB' };
+        return { color: '#6B7280', bg: '#F3F4F6', border: '#E5E7EB' };
     };
 
     const getAccountDetails = (accId) => {
         const acc = accounts.find(a => a.id === accId || a.id === parseInt(accId));
-        return acc ? acc : { platform: 'Unknown', username: 'Unknown' };
+        return acc ? acc : { platform: 'Unknown', username: 'No Account' };
     };
 
     if (loading) return <div className="loading-state"><Loader className="spinner" size={32} /><p>Loading plans...</p></div>;
@@ -477,6 +478,10 @@ const ContentPlanner = () => {
                                                 onChange={(e) => handleQuickStatusChange(plan, e.target.value)}
                                             >
                                                 <option value="draft">Draft</option>
+                                                <option value="scripting">Scripting</option>
+                                                <option value="shooting">Shooting</option>
+                                                <option value="editing">Editing</option>
+                                                <option value="ready">Ready to Post</option>
                                                 <option value="posted">Posted</option>
                                             </select>
                                         </td>
@@ -833,7 +838,11 @@ const ContentPlanner = () => {
                     background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%23333' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'%3E%3C/polyline%3E%3C/svg%3E");
                     background-repeat: no-repeat; background-position: right 8px center; padding-right: 24px;
                 }
-                .status-select.draft { background-color: #E2E8F0; color: #475569; }
+                .status-select.draft { background-color: #F1F5F9; color: #64748B; }
+                .status-select.scripting { background-color: #EEF2FF; color: #4338CA; }
+                .status-select.shooting { background-color: #FFFBEB; color: #B45309; }
+                .status-select.editing { background-color: #EFF6FF; color: #1D4ED8; }
+                .status-select.ready { background-color: #F5F3FF; color: #6D28D9; }
                 .status-select.posted { background-color: #DEF7EC; color: #03543F; }
                 .status-select:hover { opacity: 0.9; }
                 .status-select:focus { outline: none; border-color: var(--color-primary); }

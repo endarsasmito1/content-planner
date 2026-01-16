@@ -19,11 +19,12 @@ exports.getAllPlans = async (req, res) => {
 
 exports.createPlan = async (req, res) => {
     try {
-        const { title, caption, postingDate, link, resourceLink, socialAccountId, status } = req.body;
+        const { title, caption, script, postingDate, link, resourceLink, socialAccountId, status } = req.body;
 
         const newPlan = await ContentPlan.create({
             title,
             caption,
+            script,
             postingDate,
             link,
             resourceLink,
@@ -49,13 +50,14 @@ exports.createPlan = async (req, res) => {
 exports.updatePlan = async (req, res) => {
     try {
         const { id } = req.params;
-        const { title, caption, postingDate, link, resourceLink, socialAccountId, status, views, likes, comments } = req.body;
+        const { title, caption, script, postingDate, link, resourceLink, socialAccountId, status, views, likes, comments } = req.body;
 
         const plan = await ContentPlan.findByPk(id);
         if (!plan) return res.status(404).json({ error: 'Plan not found' });
 
         plan.title = title || plan.title;
         plan.caption = caption !== undefined ? caption : plan.caption;
+        plan.script = script !== undefined ? script : plan.script;
         plan.postingDate = postingDate || plan.postingDate;
         plan.link = link !== undefined ? link : plan.link;
         plan.resourceLink = resourceLink !== undefined ? resourceLink : plan.resourceLink;
