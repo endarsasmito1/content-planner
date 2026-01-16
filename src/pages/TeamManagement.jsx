@@ -123,8 +123,8 @@ const TeamManagement = () => {
                                 <td>
                                     <div className="members-avatars">
                                         {team.Users && team.Users.slice(0, 5).map(u => (
-                                            <div key={u.id} className="member-avatar" title={u.username}>
-                                                {u.avatarUrl ? <img src={u.avatarUrl} alt={u.username} /> : u.username.charAt(0).toUpperCase()}
+                                            <div key={u.id} className="member-avatar" title={u.name || u.username}>
+                                                {u.avatarUrl ? <img src={u.avatarUrl} alt={u.username} /> : (u.name || u.username).charAt(0).toUpperCase()}
                                             </div>
                                         ))}
                                         {team.Users && team.Users.length > 5 && (

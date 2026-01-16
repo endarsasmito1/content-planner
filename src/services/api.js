@@ -1,4 +1,4 @@
-const API_BASE_URL = 'http://localhost:5000/api';
+const API_BASE_URL = 'http://localhost:5001/api';
 
 // Helper to get auth header
 const getAuthHeader = () => {
@@ -8,13 +8,19 @@ const getAuthHeader = () => {
 
 // Generic fetch wrapper
 const apiRequest = async (endpoint, options = {}) => {
+    const headers = {
+        ...getAuthHeader(),
+        ...options.headers
+    };
+
+    // Only set Content-Type to json if body is NOT FormData
+    if (!(options.body instanceof FormData)) {
+        headers['Content-Type'] = 'application/json';
+    }
+
     const response = await fetch(`${API_BASE_URL}${endpoint}`, {
-        headers: {
-            'Content-Type': 'application/json',
-            ...getAuthHeader(),
-            ...options.headers
-        },
-        ...options
+        ...options,
+        headers
     });
 
     const data = await response.json();
@@ -39,10 +45,10 @@ export const authAPI = {
         return data;
     },
 
-    register: async (username, email, password) => {
+    register: async (username, email, password, name) => {
         const data = await apiRequest('/auth/register', {
             method: 'POST',
-            body: JSON.stringify({ username, email, password })
+            body: JSON.stringify({ username, email, password, name })
         });
         if (data.token) {
             localStorage.setItem('token', data.token);
@@ -58,6 +64,13 @@ export const authAPI = {
         return await apiRequest('/auth/profile', {
             method: 'PUT',
             body: JSON.stringify(userData)
+        });
+    },
+
+    uploadAvatar: async (formData) => {
+        return await apiRequest('/auth/avatar', {
+            method: 'POST',
+            body: formData
         });
     },
 

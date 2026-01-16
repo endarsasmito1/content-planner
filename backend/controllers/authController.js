@@ -17,7 +17,7 @@ const generateToken = (user) => {
 // @access  Public
 exports.register = async (req, res) => {
     try {
-        const { username, email, password } = req.body;
+        const { username, email, password, name } = req.body;
 
         // Check if user exists
         const existingUser = await User.findOne({
@@ -34,6 +34,7 @@ exports.register = async (req, res) => {
             username,
             email,
             password,
+            name: name || username, // Default name to username if not provided
             role: 'user'
         });
 
@@ -45,6 +46,7 @@ exports.register = async (req, res) => {
                 id: user.id,
                 username: user.username,
                 email: user.email,
+                name: user.name,
                 role: user.role,
                 avatarUrl: user.avatarUrl,
                 dateJoined: user.dateJoined,
@@ -81,6 +83,7 @@ exports.login = async (req, res) => {
                 id: userWithTeam.id,
                 username: userWithTeam.username,
                 email: userWithTeam.email,
+                name: userWithTeam.name,
                 role: userWithTeam.role,
                 avatarUrl: userWithTeam.avatarUrl,
                 dateJoined: userWithTeam.dateJoined,
@@ -113,6 +116,7 @@ exports.getMe = async (req, res) => {
                 id: user.id,
                 username: user.username,
                 email: user.email,
+                name: user.name,
                 role: user.role,
                 avatarUrl: user.avatarUrl,
                 dateJoined: user.dateJoined,
@@ -131,7 +135,7 @@ exports.getMe = async (req, res) => {
 // @access  Private
 exports.updateProfile = async (req, res) => {
     try {
-        const { username, email, phoneNumber, avatarUrl } = req.body;
+        const { username, email, phoneNumber, avatarUrl, name } = req.body;
         const user = await User.findByPk(req.user.id);
 
         if (!user) {
@@ -152,6 +156,7 @@ exports.updateProfile = async (req, res) => {
         user.email = email || user.email;
         user.phoneNumber = phoneNumber || user.phoneNumber;
         user.avatarUrl = avatarUrl || user.avatarUrl;
+        user.name = name || user.name;
 
         await user.save();
 
@@ -166,6 +171,7 @@ exports.updateProfile = async (req, res) => {
                 id: updatedUser.id,
                 username: updatedUser.username,
                 email: updatedUser.email,
+                name: updatedUser.name,
                 role: updatedUser.role,
                 avatarUrl: updatedUser.avatarUrl,
                 dateJoined: updatedUser.dateJoined,
@@ -176,6 +182,36 @@ exports.updateProfile = async (req, res) => {
     } catch (error) {
         console.error('Update profile error:', error);
         res.status(500).json({ error: 'Server error', details: error.message });
+    }
+};
+
+// @route   POST /api/auth/upload-avatar
+// @desc    Upload user avatar
+// @access  Private
+exports.uploadAvatar = async (req, res) => {
+    try {
+        if (!req.file) {
+            return res.status(400).json({ error: 'No file uploaded' });
+        }
+
+        const user = await User.findByPk(req.user.id);
+        if (!user) return res.status(404).json({ error: 'User not found' });
+
+        // Generate URL
+        // Assumes server serves 'public/uploads' at '/uploads'
+        const avatarUrl = `${req.protocol}://${req.get('host')}/uploads/${req.file.filename}`;
+
+        user.avatarUrl = avatarUrl;
+        await user.save();
+
+        res.json({
+            success: true,
+            avatarUrl: user.avatarUrl,
+            message: 'Avatar uploaded successfully'
+        });
+    } catch (error) {
+        console.error('Upload avatar error:', error);
+        res.status(500).json({ error: 'Server error during upload' });
     }
 };
 

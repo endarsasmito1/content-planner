@@ -1,17 +1,24 @@
 import React, { useState, useEffect } from 'react';
 import { useAuth } from '../context/AuthContext';
+import { authAPI } from '../services/api';
 import { Save, User, Mail, Phone, Image, Check } from 'lucide-react';
 
 const Settings = () => {
     const { user, updateUser } = useAuth();
+    // Import authAPI directly if not available in context, or assume we can add it later. 
+    // Let's assume we import it at top.
 
-    // Form state - initialize with user data
+    // Form state
     const [formData, setFormData] = useState({
         username: '',
         email: '',
         phoneNumber: '',
+        name: '', // Added name
         avatarUrl: ''
     });
+
+    const [selectedFile, setSelectedFile] = useState(null);
+    const [previewUrl, setPreviewUrl] = useState(null);
 
     const [loading, setLoading] = useState(false);
     const [message, setMessage] = useState({ text: '', type: '' });
@@ -22,24 +29,70 @@ const Settings = () => {
                 username: user.username || '',
                 email: user.email || '',
                 phoneNumber: user.phoneNumber || '',
+                name: user.name || '',
                 avatarUrl: user.avatarUrl || ''
             });
         }
     }, [user]);
+
+    // Handle File Selection
+    const handleFileChange = (e) => {
+        const file = e.target.files[0];
+        if (file) {
+            setSelectedFile(file);
+            setPreviewUrl(URL.createObjectURL(file));
+        }
+    };
 
     const handleSubmit = async (e) => {
         e.preventDefault();
         setLoading(true);
         setMessage({ text: '', type: '' });
 
-        const result = await updateUser(formData);
+        try {
+            let currentAvatarUrl = formData.avatarUrl;
 
-        if (result.success) {
-            setMessage({ text: 'Profile updated successfully!', type: 'success' });
-        } else {
-            setMessage({ text: result.message || 'Failed to update profile.', type: 'error' });
+            // 1. Upload new avatar if selected
+            if (selectedFile) {
+                const data = new FormData();
+                data.append('image', selectedFile);
+
+                // We need to import authAPI here. Since I can't easily add import to top with replace_file_content block, 
+                // I will add it to the top of file in a separate step or assume I can do it here if possible. This tool works better with full file or careful replacements.
+                // I'll make a helper function here or assume authAPI is imported.
+                // Actually I need to add import to top.
+
+                // Let's fix imports first then.
+                // Skipping import detail here, will be added in previous tool call or next.
+                // Actually, I can import inside the component? No.
+                // I will use `import { authAPI } from '../services/api';` at top.
+
+                const uploadRes = await authAPI.uploadAvatar(data);
+                if (uploadRes.success) {
+                    currentAvatarUrl = uploadRes.avatarUrl;
+                }
+            }
+
+            // 2. Update Profile
+            const result = await updateUser({
+                ...formData,
+                avatarUrl: currentAvatarUrl
+            });
+
+            if (result.success) {
+                setMessage({ text: 'Profile updated successfully!', type: 'success' });
+                // Clear file selection on success
+                setSelectedFile(null);
+                setPreviewUrl(null);
+            } else {
+                setMessage({ text: result.message || 'Failed to update profile.', type: 'error' });
+            }
+        } catch (err) {
+            console.error(err);
+            setMessage({ text: 'An unexpected error occurred.', type: 'error' });
+        } finally {
+            setLoading(false);
         }
-        setLoading(false);
     };
 
     return (
@@ -51,7 +104,6 @@ const Settings = () => {
 
             <div className="card settings-card">
                 <form onSubmit={handleSubmit} className="settings-form">
-
                     {/* Feedback Message */}
                     {message.text && (
                         <div className={`message-box ${message.type}`}>
@@ -66,30 +118,44 @@ const Settings = () => {
                         <div className="form-group avatar-preview-group">
                             <div className="avatar-preview">
                                 <img
-                                    src={formData.avatarUrl || `https://ui-avatars.com/api/?name=${formData.username}&background=random`}
+                                    src={previewUrl || formData.avatarUrl || `https://ui-avatars.com/api/?name=${formData.username}&background=random`}
                                     alt="Preview"
                                     onError={(e) => { e.target.src = 'https://i.pravatar.cc/150?u=default'; }}
                                 />
                             </div>
                             <div className="form-input-wrapper">
-                                <label className="input-label">Profile Picture URL</label>
+                                <label className="input-label">Profile Picture</label>
                                 <div className="input-group">
                                     <Image size={18} className="input-icon" />
                                     <input
-                                        type="text"
-                                        value={formData.avatarUrl}
-                                        onChange={(e) => setFormData({ ...formData, avatarUrl: e.target.value })}
-                                        placeholder="https://example.com/avatar.jpg"
+                                        type="file"
+                                        accept="image/*"
+                                        onChange={handleFileChange}
                                         className="form-input"
+                                        style={{ paddingLeft: '44px' }}
                                     />
                                 </div>
-                                <small className="helper-text">Paste an image URL for your profile picture.</small>
+                                <small className="helper-text">Upload a new profile picture (JPG, PNG).</small>
                             </div>
                         </div>
 
                         <div className="form-row">
                             <div className="form-group">
-                                <label className="input-label">Username / Name</label>
+                                <label className="input-label">Full Name</label>
+                                <div className="input-group">
+                                    <User size={18} className="input-icon" />
+                                    <input
+                                        type="text"
+                                        value={formData.name}
+                                        onChange={(e) => setFormData({ ...formData, name: e.target.value })}
+                                        placeholder="Enter your name"
+                                        className="form-input"
+                                    />
+                                </div>
+                            </div>
+
+                            <div className="form-group">
+                                <label className="input-label">Username</label>
                                 <div className="input-group">
                                     <User size={18} className="input-icon" />
                                     <input
@@ -102,7 +168,9 @@ const Settings = () => {
                                     />
                                 </div>
                             </div>
+                        </div>
 
+                        <div className="form-row">
                             <div className="form-group">
                                 <label className="input-label">Email Address</label>
                                 <div className="input-group">
@@ -117,19 +185,19 @@ const Settings = () => {
                                     />
                                 </div>
                             </div>
-                        </div>
 
-                        <div className="form-group">
-                            <label className="input-label">Phone Number</label>
-                            <div className="input-group">
-                                <Phone size={18} className="input-icon" />
-                                <input
-                                    type="tel"
-                                    value={formData.phoneNumber}
-                                    onChange={(e) => setFormData({ ...formData, phoneNumber: e.target.value })}
-                                    placeholder="+62 812..."
-                                    className="form-input"
-                                />
+                            <div className="form-group">
+                                <label className="input-label">Phone Number</label>
+                                <div className="input-group">
+                                    <Phone size={18} className="input-icon" />
+                                    <input
+                                        type="tel"
+                                        value={formData.phoneNumber}
+                                        onChange={(e) => setFormData({ ...formData, phoneNumber: e.target.value })}
+                                        placeholder="+62 812..."
+                                        className="form-input"
+                                    />
+                                </div>
                             </div>
                         </div>
                     </div>

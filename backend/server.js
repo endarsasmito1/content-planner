@@ -37,6 +37,9 @@ app.use(cors({
 }));
 app.use(express.json());
 
+// Serve static files
+app.use('/uploads', express.static(__dirname + '/public/uploads'));
+
 // Routes
 app.use('/api/auth', authRoutes);
 app.use('/api/users', userRoutes);
@@ -61,8 +64,8 @@ const PORT = process.env.PORT || 5000;
 const startServer = async () => {
     try {
         // Sync database
-        // alter: false to prevent SQLite backup table unique constraint errors during restart
-        await sequelize.sync({ alter: false });
+        // alter: true to update schema with new columns
+        await sequelize.sync({ alter: true });
         console.log('✅ Database synchronized');
 
         // Create default superadmin if not exists

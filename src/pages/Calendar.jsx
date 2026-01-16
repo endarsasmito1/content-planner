@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { ChevronLeft, ChevronRight, Plus, Instagram, Facebook, Youtube, Twitter, X, Check, Loader, ChevronDown } from 'lucide-react';
+import TikTokIcon from '../components/TikTokIcon';
 import { plansAPI, accountsAPI } from '../services/api';
 
 const Calendar = () => {
@@ -200,6 +201,7 @@ const Calendar = () => {
         if (p.includes('facebook')) return <Facebook size={12} />;
         if (p.includes('youtube')) return <Youtube size={12} />;
         if (p.includes('twitter') || p.includes('x')) return <Twitter size={12} />;
+        if (p.includes('tiktok')) return <TikTokIcon size={12} />;
         return <span style={{ fontSize: 9, fontWeight: 'bold' }}>{platform?.[0]}</span>;
     };
 
@@ -208,6 +210,7 @@ const Calendar = () => {
         if (p.includes('instagram')) return '#FDEDF3';
         if (p.includes('facebook')) return '#E7F1FF';
         if (p.includes('youtube')) return '#FFEEEE';
+        if (p.includes('tiktok')) return '#EFEFEF';
         return '#F5F6FA';
     };
 
@@ -216,6 +219,7 @@ const Calendar = () => {
         if (p.includes('instagram')) return '#E1306C';
         if (p.includes('facebook')) return '#1877F2';
         if (p.includes('youtube')) return '#FF0000';
+        if (p.includes('tiktok')) return '#000000';
         return '#4B5563';
     };
 

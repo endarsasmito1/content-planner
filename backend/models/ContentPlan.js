@@ -23,6 +23,10 @@ const ContentPlan = sequelize.define('ContentPlan', {
         type: DataTypes.STRING,
         allowNull: true
     },
+    resourceLink: {
+        type: DataTypes.STRING,
+        allowNull: true
+    },
     status: {
         type: DataTypes.STRING,
         defaultValue: 'draft',

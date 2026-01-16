@@ -4,6 +4,7 @@ import {
     Calendar as CalendarIcon, Instagram, Facebook, Youtube, Twitter, ChevronDown,
     ChevronLeft, ChevronRight, Filter
 } from 'lucide-react';
+import TikTokIcon from '../components/TikTokIcon';
 import { plansAPI, accountsAPI } from '../services/api';
 
 const ContentPlanner = () => {
@@ -41,9 +42,13 @@ const ContentPlanner = () => {
         caption: '',
         postingDate: '',
         link: '',
+        resourceLink: '',
         status: 'draft',
         selectedAccountIds: []
     });
+
+    // Keep track of initial accounts when editing to detect changes
+    const [initialEditingAccounts, setInitialEditingAccounts] = useState([]);
 
     useEffect(() => {
         const handleClickOutside = (event) => {
@@ -91,9 +96,11 @@ const ContentPlanner = () => {
             caption: '',
             postingDate: dateStr,
             link: '',
+            resourceLink: '',
             status: 'draft',
             selectedAccountIds: accounts.length > 0 ? [accounts[0].id] : []
         });
+        setInitialEditingAccounts([]); // No initial accounts for new plan
         setModalOpen(true);
     };
 
@@ -104,9 +111,11 @@ const ContentPlanner = () => {
             caption: plan.caption || '',
             postingDate: plan.postingDate ? new Date(plan.postingDate).toISOString().split('T')[0] : '',
             link: plan.link || '',
+            resourceLink: plan.resourceLink || '',
             status: plan.status || 'draft',
             selectedAccountIds: [plan.SocialAccountId]
         });
+        setInitialEditingAccounts([plan.SocialAccountId]); // Track initial account
         setModalOpen(true);
     };
 
@@ -148,6 +157,7 @@ const ContentPlanner = () => {
                     caption: formData.caption,
                     postingDate: formData.postingDate,
                     link: formData.link,
+                    resourceLink: formData.resourceLink,
                     status: formData.status,
                     socialAccountId: primaryId
                 });
@@ -160,6 +170,7 @@ const ContentPlanner = () => {
                             caption: formData.caption,
                             postingDate: formData.postingDate,
                             link: formData.link,
+                            resourceLink: formData.resourceLink,
                             status: formData.status,
                             socialAccountId: accId
                         })
@@ -176,6 +187,7 @@ const ContentPlanner = () => {
                         caption: formData.caption,
                         postingDate: formData.postingDate,
                         link: formData.link,
+                        resourceLink: formData.resourceLink,
                         status: formData.status,
                         socialAccountId: accId
                     })
@@ -268,12 +280,14 @@ const ContentPlanner = () => {
         });
     };
 
+
     const getPlatformIcon = (platformName) => {
         const name = platformName?.toLowerCase() || '';
         if (name.includes('instagram')) return <Instagram size={14} />;
         if (name.includes('facebook')) return <Facebook size={14} />;
         if (name.includes('youtube')) return <Youtube size={14} />;
         if (name.includes('twitter')) return <Twitter size={14} />;
+        if (name.includes('tiktok')) return <TikTokIcon size={14} />;
         return <span style={{ fontSize: 10, fontWeight: 800 }}>{platformName?.[0]}</span>;
     };
 
@@ -282,6 +296,7 @@ const ContentPlanner = () => {
         if (p.includes('instagram')) return { color: '#E1306C', bg: '#FDEDF3', border: '#FFD1DC' };
         if (p.includes('facebook')) return { color: '#1877F2', bg: '#E7F1FF', border: '#C8DFFF' };
         if (p.includes('youtube')) return { color: '#FF0000', bg: '#FFEEEE', border: '#FFCACA' };
+        if (p.includes('tiktok')) return { color: '#000000', bg: '#F2F2F2', border: '#D9D9D9' };
         return { color: '#4B5563', bg: '#F5F6FA', border: '#E5E7EB' };
     };
 
@@ -429,8 +444,8 @@ const ContentPlanner = () => {
                                     <tr key={plan.id}>
                                         <td className="title-col">
                                             <div className="content-title">{plan.title}</div>
-                                            {plan.link && (
-                                                <a href={plan.link} target="_blank" rel="noopener noreferrer" className="link-text">
+                                            {plan.resourceLink && (
+                                                <a href={plan.resourceLink} target="_blank" rel="noopener noreferrer" className="link-text">
                                                     <LinkIcon size={12} /> Link Resource
                                                 </a>
                                             )}
@@ -664,11 +679,22 @@ const ContentPlanner = () => {
                             </div>
 
                             <div className="form-group">
-                                <label>Resource Link (Optional)</label>
+                                <label>Resource Link (Assets/Drive/Figma)</label>
                                 <input
                                     type="url"
                                     className="form-input"
                                     placeholder="https://drive.google.com/..."
+                                    value={formData.resourceLink}
+                                    onChange={e => setFormData({ ...formData, resourceLink: e.target.value })}
+                                />
+                            </div>
+
+                            <div className="form-group">
+                                <label>Published Link (Instagram/TikTok URL)</label>
+                                <input
+                                    type="url"
+                                    className="form-input"
+                                    placeholder="https://instagram.com/p/..."
                                     value={formData.link}
                                     onChange={e => setFormData({ ...formData, link: e.target.value })}
                                 />
@@ -678,7 +704,10 @@ const ContentPlanner = () => {
                             <button className="btn-secondary" onClick={() => setModalOpen(false)}>Cancel</button>
                             <button className="btn-primary" onClick={handleSave} disabled={submitting}>
                                 {submitting ? <Loader size={16} className="spinner" /> : <Check size={16} />}
-                                {editingPlan ? 'Save & Clone' : 'Create Plan(s)'}
+                                {editingPlan
+                                    ? (formData.selectedAccountIds.length > initialEditingAccounts.length ? 'Save & Clone' : 'Save')
+                                    : (formData.selectedAccountIds.length > 1 ? 'Save & Clone' : 'Save')
+                                }
                             </button>
                         </div>
                     </div>

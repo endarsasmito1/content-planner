@@ -4,6 +4,7 @@ import {
     Instagram, Facebook, Youtube, Twitter, Edit2, Check, X,
     TrendingUp, BarChart3
 } from 'lucide-react';
+import TikTokIcon from '../components/TikTokIcon';
 import { plansAPI, accountsAPI } from '../services/api';
 
 const ContentReport = () => {
@@ -58,6 +59,7 @@ const ContentReport = () => {
         if (p.includes('facebook')) return <Facebook size={16} />;
         if (p.includes('youtube')) return <Youtube size={16} />;
         if (p.includes('twitter') || p.includes('x')) return <Twitter size={16} />;
+        if (p.includes('tiktok')) return <TikTokIcon size={16} />;
         return null;
     };
 
@@ -66,6 +68,7 @@ const ContentReport = () => {
         if (p.includes('instagram')) return { color: '#E1306C', bg: '#FDEDF3' };
         if (p.includes('facebook')) return { color: '#1877F2', bg: '#E7F1FF' };
         if (p.includes('youtube')) return { color: '#FF0000', bg: '#FFEEEE' };
+        if (p.includes('tiktok')) return { color: '#000000', bg: '#F2F2F2' };
         return { color: '#4B5563', bg: '#F5F6FA' };
     };
 

@@ -7,6 +7,7 @@ const Register = () => {
     const { register } = useAuth();
 
     const [formData, setFormData] = useState({
+        name: '',
         username: '',
         email: '',
         password: '',
@@ -20,7 +21,7 @@ const Register = () => {
             return;
         }
 
-        const result = await register(formData.username, formData.email, formData.password);
+        const result = await register(formData.username, formData.email, formData.password, formData.name);
         if (result.success) {
             navigate('/');
         } else {
@@ -37,6 +38,17 @@ const Register = () => {
                 </div>
 
                 <form onSubmit={handleSubmit}>
+                    <div className="form-group">
+                        <label>Full Name</label>
+                        <input
+                            type="text"
+                            className="form-input"
+                            placeholder="Enter your full name (Optional)"
+                            value={formData.name}
+                            onChange={(e) => setFormData({ ...formData, name: e.target.value })}
+                        />
+                    </div>
+
                     <div className="form-group">
                         <label>Username</label>
                         <input
