@@ -2,7 +2,7 @@ import React, { useState, useEffect, useRef } from 'react';
 import {
     Plus, Edit2, Trash2, Check, X, Loader, Link as LinkIcon,
     Calendar as CalendarIcon, Instagram, Facebook, Youtube, Twitter, ChevronDown,
-    ChevronLeft, ChevronRight
+    ChevronLeft, ChevronRight, Filter
 } from 'lucide-react';
 import { plansAPI, accountsAPI } from '../services/api';
 
@@ -27,6 +27,14 @@ const ContentPlanner = () => {
     // Pagination state
     const [currentPage, setCurrentPage] = useState(1);
     const [itemsPerPage, setItemsPerPage] = useState(10);
+
+    // Filter state
+    const [filters, setFilters] = useState({
+        accountId: '',
+        status: '',
+        dateFrom: '',
+        dateTo: ''
+    });
 
     const [formData, setFormData] = useState({
         title: '',
@@ -284,12 +292,6 @@ const ContentPlanner = () => {
 
     if (loading) return <div className="loading-state"><Loader className="spinner" size={32} /><p>Loading plans...</p></div>;
 
-    // Pagination calculations
-    const totalPages = Math.ceil(plans.length / itemsPerPage);
-    const startIndex = (currentPage - 1) * itemsPerPage;
-    const endIndex = startIndex + itemsPerPage;
-    const paginatedPlans = plans.slice(startIndex, endIndex);
-
     const handlePageChange = (page) => {
         if (page >= 1 && page <= totalPages) {
             setCurrentPage(page);
@@ -299,6 +301,39 @@ const ContentPlanner = () => {
     const handleItemsPerPageChange = (e) => {
         setItemsPerPage(parseInt(e.target.value));
         setCurrentPage(1); // Reset to first page
+    };
+
+    // Apply filters
+    const filteredPlans = plans.filter(plan => {
+        // Filter by account
+        if (filters.accountId && plan.SocialAccountId !== parseInt(filters.accountId)) {
+            return false;
+        }
+        // Filter by status
+        if (filters.status && plan.status !== filters.status) {
+            return false;
+        }
+        // Filter by date range
+        if (filters.dateFrom) {
+            const planDate = plan.postingDate?.split('T')[0];
+            if (planDate < filters.dateFrom) return false;
+        }
+        if (filters.dateTo) {
+            const planDate = plan.postingDate?.split('T')[0];
+            if (planDate > filters.dateTo) return false;
+        }
+        return true;
+    });
+
+    // Pagination calculations (use filteredPlans instead of plans)
+    const totalPages = Math.ceil(filteredPlans.length / itemsPerPage);
+    const startIndex = (currentPage - 1) * itemsPerPage;
+    const endIndex = startIndex + itemsPerPage;
+    const paginatedPlans = filteredPlans.slice(startIndex, endIndex);
+
+    const resetFilters = () => {
+        setFilters({ accountId: '', status: '', dateFrom: '', dateTo: '' });
+        setCurrentPage(1);
     };
 
     return (
@@ -318,6 +353,55 @@ const ContentPlanner = () => {
                 <button className="btn-primary" onClick={openAddModal}>
                     <Plus size={18} /> New Plan
                 </button>
+            </div>
+
+            {/* Filter Bar */}
+            <div className="filter-bar card">
+                <div className="filter-icon"><Filter size={18} /></div>
+                <div className="filter-group">
+                    <label>Account</label>
+                    <select
+                        value={filters.accountId}
+                        onChange={e => { setFilters({ ...filters, accountId: e.target.value }); setCurrentPage(1); }}
+                    >
+                        <option value="">Semua Account</option>
+                        {accounts.map(acc => (
+                            <option key={acc.id} value={acc.id}>{acc.platform} - @{acc.username}</option>
+                        ))}
+                    </select>
+                </div>
+                <div className="filter-group">
+                    <label>Status</label>
+                    <select
+                        value={filters.status}
+                        onChange={e => { setFilters({ ...filters, status: e.target.value }); setCurrentPage(1); }}
+                    >
+                        <option value="">Semua Status</option>
+                        <option value="draft">Draft</option>
+                        <option value="posted">Posted</option>
+                    </select>
+                </div>
+                <div className="filter-group">
+                    <label>Dari Tanggal</label>
+                    <input
+                        type="date"
+                        value={filters.dateFrom}
+                        onChange={e => { setFilters({ ...filters, dateFrom: e.target.value }); setCurrentPage(1); }}
+                    />
+                </div>
+                <div className="filter-group">
+                    <label>Sampai Tanggal</label>
+                    <input
+                        type="date"
+                        value={filters.dateTo}
+                        onChange={e => { setFilters({ ...filters, dateTo: e.target.value }); setCurrentPage(1); }}
+                    />
+                </div>
+                {(filters.accountId || filters.status || filters.dateFrom || filters.dateTo) && (
+                    <button className="btn-reset-filter" onClick={resetFilters}>
+                        <X size={14} /> Reset
+                    </button>
+                )}
             </div>
 
             <div className="card table-container">
@@ -415,10 +499,10 @@ const ContentPlanner = () => {
                 </table>
 
                 {/* Pagination Controls */}
-                {plans.length > 0 && (
+                {filteredPlans.length > 0 && (
                     <div className="pagination-container">
                         <div className="pagination-info">
-                            <span>Menampilkan {startIndex + 1}-{Math.min(endIndex, plans.length)} dari {plans.length} data</span>
+                            <span>Menampilkan {startIndex + 1}-{Math.min(endIndex, filteredPlans.length)} dari {filteredPlans.length} data</span>
                             <select className="items-per-page" value={itemsPerPage} onChange={handleItemsPerPageChange}>
                                 <option value={10}>10 per halaman</option>
                                 <option value={20}>20 per halaman</option>
@@ -641,6 +725,62 @@ const ContentPlanner = () => {
                 .subtitle { color: var(--text-secondary); font-size: 14px; margin-top: 4px; }
                 .toast-notification { position: fixed; top: 24px; right: 24px; background: #05CD99; color: white; padding: 12px 20px; border-radius: 12px; box-shadow: 0 4px 12px rgba(5, 205, 153, 0.3); display: flex; align-items: center; gap: 10px; font-weight: 500; z-index: 2000; animation: slideIn 0.3s ease-out; }
                 @keyframes slideIn { from { transform: translateX(100%); opacity: 0; } to { transform: translateX(0); opacity: 1; } }
+                
+                /* FILTER BAR STYLES */
+                .filter-bar {
+                    display: flex;
+                    align-items: flex-end;
+                    gap: 16px;
+                    padding: 16px 20px;
+                    flex-wrap: wrap;
+                }
+                .filter-icon {
+                    color: var(--text-secondary);
+                    padding-bottom: 8px;
+                }
+                .filter-group {
+                    display: flex;
+                    flex-direction: column;
+                    gap: 4px;
+                }
+                .filter-group label {
+                    font-size: 11px;
+                    font-weight: 600;
+                    color: var(--text-secondary);
+                    text-transform: uppercase;
+                }
+                .filter-group select,
+                .filter-group input {
+                    padding: 8px 12px;
+                    border: 1px solid #E0E5F2;
+                    border-radius: 8px;
+                    font-size: 13px;
+                    min-width: 150px;
+                    background: white;
+                }
+                .filter-group select:focus,
+                .filter-group input:focus {
+                    outline: none;
+                    border-color: var(--color-primary);
+                }
+                .btn-reset-filter {
+                    display: flex;
+                    align-items: center;
+                    gap: 4px;
+                    padding: 8px 12px;
+                    background: #FEE2E2;
+                    color: #DC2626;
+                    border: none;
+                    border-radius: 8px;
+                    font-size: 12px;
+                    font-weight: 500;
+                    cursor: pointer;
+                    margin-left: auto;
+                }
+                .btn-reset-filter:hover {
+                    background: #FECACA;
+                }
+                
                 .table-container { overflow-x: auto; }
                 .planner-table { width: 100%; border-collapse: collapse; }
                 .planner-table th, .planner-table td { padding: 16px; text-align: left; border-bottom: 1px solid #F1F2F6; }

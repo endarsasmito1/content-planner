@@ -28,6 +28,21 @@ const ContentPlan = sequelize.define('ContentPlan', {
         defaultValue: 'draft',
         allowNull: false
     },
+    views: {
+        type: DataTypes.INTEGER,
+        defaultValue: 0,
+        allowNull: false
+    },
+    likes: {
+        type: DataTypes.INTEGER,
+        defaultValue: 0,
+        allowNull: false
+    },
+    comments: {
+        type: DataTypes.INTEGER,
+        defaultValue: 0,
+        allowNull: false
+    }
     // Foreign Keys defined in associations: SocialAccountId, UserId
 });
 

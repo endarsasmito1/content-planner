@@ -48,7 +48,7 @@ exports.createPlan = async (req, res) => {
 exports.updatePlan = async (req, res) => {
     try {
         const { id } = req.params;
-        const { title, caption, postingDate, link, socialAccountId, status } = req.body;
+        const { title, caption, postingDate, link, socialAccountId, status, views, likes, comments } = req.body;
 
         const plan = await ContentPlan.findByPk(id);
         if (!plan) return res.status(404).json({ error: 'Plan not found' });
@@ -59,6 +59,9 @@ exports.updatePlan = async (req, res) => {
         plan.link = link !== undefined ? link : plan.link;
         if (socialAccountId) plan.SocialAccountId = socialAccountId;
         if (status) plan.status = status;
+        if (views !== undefined) plan.views = views;
+        if (likes !== undefined) plan.likes = likes;
+        if (comments !== undefined) plan.comments = comments;
 
         await plan.save();
 

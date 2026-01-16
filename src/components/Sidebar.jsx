@@ -1,6 +1,9 @@
 import React, { useState } from 'react';
 import { NavLink, useLocation } from 'react-router-dom';
-import { LayoutDashboard, Calendar, FileText, ChevronLeft, ChevronRight, ChevronDown, Users } from 'lucide-react';
+import {
+    LayoutDashboard, Calendar, FileText, ChevronLeft, ChevronRight, ChevronDown, Users,
+    Trello, ClipboardList, UserPlus, BarChart3, User, UsersRound
+} from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 
 const Sidebar = ({ isCollapsed, toggleSidebar, isMobile }) => {
@@ -20,18 +23,18 @@ const Sidebar = ({ isCollapsed, toggleSidebar, isMobile }) => {
             icon: <FileText size={20} />,
             label: 'Content Plan',
             submenu: [
-                { label: 'Progress', path: '/kanban' },
-                { label: 'Plan', path: '/planner' },
-                { label: 'Input Akun', path: '/input-akun' },
-                { label: 'Content Report', path: '/content-report' },
+                { icon: <Trello size={16} />, label: 'Progress', path: '/kanban' },
+                { icon: <ClipboardList size={16} />, label: 'Content Plan', path: '/planner' },
+                { icon: <UserPlus size={16} />, label: 'Input Akun', path: '/input-akun' },
+                { icon: <BarChart3 size={16} />, label: 'Content Report', path: '/content-report' },
             ]
         },
         ...(isSuperadmin() ? [{
             icon: <Users size={20} />,
             label: 'User Management',
             submenu: [
-                { label: 'Users', path: '/users' },
-                { label: 'Teams', path: '/teams' }
+                { icon: <User size={16} />, label: 'Users', path: '/users' },
+                { icon: <UsersRound size={16} />, label: 'Teams', path: '/teams' }
             ]
         }] : [])
     ];
@@ -75,7 +78,7 @@ const Sidebar = ({ isCollapsed, toggleSidebar, isMobile }) => {
                                             to={subItem.path}
                                             className={({ isActive }) => `nav-item sub-item ${isActive ? 'active' : ''}`}
                                         >
-                                            <div className="sub-dot"></div>
+                                            <div className="sub-icon">{subItem.icon}</div>
                                             <span className="nav-label">{subItem.label}</span>
                                         </NavLink>
                                     ))}
@@ -178,17 +181,19 @@ const Sidebar = ({ isCollapsed, toggleSidebar, isMobile }) => {
             margin-top: 4px;
         }
         
-        .sub-dot {
-            width: 6px;
-            height: 6px;
-            background: var(--text-secondary);
-            border-radius: 50%;
-            margin-right: 12px;
-            opacity: 0.5;
+        .sub-icon {
+            width: 20px;
+            height: 20px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-right: 10px;
+            color: var(--text-secondary);
+            opacity: 0.7;
         }
         
-        .nav-item.sub-item.active .sub-dot {
-            background: white;
+        .nav-item.sub-item.active .sub-icon {
+            color: white;
             opacity: 1;
         }
 
